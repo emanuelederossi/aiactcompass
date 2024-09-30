@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
   const result = await streamText({
     model: openai('gpt-4o'),
-    system: 'Your sole porpuse is to help user understand wich kind of entity is the user organization in, in the context of the AI ACT framework',
+    system: 'Your sole porpuse is to help user understand wich kind of entity is the user organization in, in the context of the AI ACT framework, try to be always concise and clear',
     messages: convertToCoreMessages(messages),
     tools: {
       getEntityType: {
@@ -32,29 +32,36 @@ export async function POST(req: Request) {
             `),
         }),
         execute: async ({ entity }) => {
+          if (!entity) {
+            return 'No entity provided';
+          }
           return `The user organization is a ${entity}`;
         },
       },
       systemModifications: {
-            description: 'Possible shift of entity type to Provider if the user organization does one of those actions',
-            parameters: z.object({
-            action: z
-                .boolean()
-                .describe(`
+        description: 'Possible shift of entity type to Provider if the user organization does one of those actions',
+        parameters: z.object({
+          action: z
+            .enum(['true', 'false', 'No action provided'])
+            .describe(`
                     the action the user organization does that may shift their entity type to Provider:
                     - Puts their name on an existing system, 
                     - Makes significant changes to a system (so that it differs form the original version in a relevant way), 
                     - Modifies the intended purpose of a system.
-                    Evaluate TRUE if the user organization does one of those actions, otherwise FALSE
+                    Evaluate TRUE if the user organization does one of those actions, FALSE if not, or No action provided as a default value
                     `)
-            }),
-            execute: async ({ action }) => {
-                if (action) {
-                    return `The user organization is now cosidered a Provider`;
-                };
-            },
+        }),
+        execute: async ({ action }) => {
+          if (action === 'true') {
+            return 'The user organization is now a Provider';
+          }
+          if (action === 'false') {
+            return 'SAFE, unchanged entity type';
+          }
+          return 'No edit provided';
         },
-    },
+      },
+    }
   });
 
   return result.toDataStreamResponse();
