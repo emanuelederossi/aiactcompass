@@ -7,7 +7,7 @@ export default function Chat() {
   const { messages, input, setInput, append, handleSubmit } = useChat({
     api: '/api/chat',
   });
-  const toolInvocations = messages.flatMap(m => m.toolInvocations || []);  
+  const toolInvocations = messages.flatMap(m => m.toolInvocations ?? []);
   console.log(toolInvocations)
   const hasSystemModifications = toolInvocations.some(
     invocation => invocation.toolName === 'systemModifications' && invocation.state === 'result'
@@ -18,11 +18,19 @@ export default function Chat() {
 
   const [sysInformed, setSysInformed] = useState(false);
 
+  const sendItData = async () => {
+    try {
+    await append({ content: 'ask me about system modifications', role: 'user' });      
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   if (hasSystemModifications && hasGetEntityType) {
     console.log('Both systemModifications and getEntityType are present');
   } else if(!hasSystemModifications && hasGetEntityType && !sysInformed) {
     setSysInformed(true);
-    append({ content: 'ask me about system modifications', role: 'user' });
+    sendItData().catch(console.error);
   }
   return (
     <div className="flex flex-col w-full max-w-md py-24 h-[90vh] mx-auto stretch overflow-y-scroll">
@@ -43,10 +51,10 @@ export default function Chat() {
         ))}
       </div>
 
-      <form onSubmit={(e) => {
+      <form onSubmit={async(e) => {
         e.preventDefault()
-        append({ content: input, role: "user" })
         setInput("")
+        await append({ content: input, role: "user" })
       }}>
         <input
           className="fixed bottom-0 w-full max-w-md p-2 mb-8 border border-gray-300 rounded shadow-xl"

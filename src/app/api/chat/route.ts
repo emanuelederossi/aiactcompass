@@ -2,6 +2,7 @@ import { ToolInvocation, convertToCoreMessages, streamText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 
+
 interface Message {
   role: 'user' | 'assistant';
   content: string;
