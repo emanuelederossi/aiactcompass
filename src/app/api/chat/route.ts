@@ -62,6 +62,52 @@ export async function POST(req: Request) {
           return 'No edit provided';
         },
       },
+      checkTerritorialScope: {
+        description: 'Check if the user organization is within the territorial scope of the AI ACT',
+        parameters: z.object({
+          scope: z
+            .enum(['INSIDE', 'OUTSIDE', 'No scope provided'])
+            .describe(`
+                    the territorial scope the user organization is in based on these descriptions: 
+                    1- I am established or located within the EU;
+                    2- My AI system's output is used in the EU;
+                    3- My AI system is located in a non-EU country where 'EU Member State Law' applies by virtue of public international law; 
+                    4- No scope provided: if the user organization is not in any of the above territories.
+
+                    evaluate INSIDE if the user organization is within the territorial scope of the AI ACT (1, 2 or 3), OUTSIDE if not (4), or No scope provided as a default value
+                    `),
+        }),
+        execute: async ({ scope }) => {
+          if (!scope) {
+            return 'No scope provided';
+          }
+          return `territorial scope: ${scope}`;
+        },
+      },
+      checkExludedSystems: {
+        description: 'Check if the user organization system is excluded from the AI ACT',
+        parameters: z.object({
+          excluded: z
+            .enum(['true', 'false', 'No exclusion provided'])
+            .describe(`
+                    If ANY of the following apply to the user organization's AI system, evaluate TRUE, otherwise FALSE:
+                    - The AI systems developed and used exclusively for military purposes
+                    - AI systems used by public authorities or international organisations in third countries for law enforcement and judicial cooperation
+                    - AI research and development activity
+                    - AI components provided under free and open-source licences
+                    - People using AI systems for purely personal, nonprofessional activity
+                  `),
+        }),
+        execute: async ({ excluded }) => {
+          if (excluded === 'true') {
+            return 'The AI system is excluded from the AI ACT';
+          }
+          if (excluded === 'false') {
+            return 'The AI system is not excluded from the AI ACT';
+          }
+          return 'No exclusion provided';
+        },
+      },
     }
   });
 

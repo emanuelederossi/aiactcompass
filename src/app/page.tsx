@@ -1,43 +1,84 @@
 'use client';
 
 import { useChat } from 'ai/react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Chat() {
-  const { messages, input, setInput, append, handleSubmit } = useChat({
+
+  const scrollContRef = useRef<HTMLDivElement>(null);
+  const [completitionFinished, setCompletitionFinished] = useState(false);
+  const [hasFinished, setHasFinished] = useState(false);
+
+
+  const [toolCalled, setToolCalled] = useState<{toolName:string, informed: boolean, alreadyAsked: boolean}[]>([
+    { toolName: 'getEntityType', informed: false, alreadyAsked: true },
+    { toolName: 'systemModifications', informed: false, alreadyAsked: false },
+    { toolName: 'checkTerritorialScope', informed: false, alreadyAsked: false },
+    { toolName: 'checkExludedSystems', informed: false, alreadyAsked: false },
+  ]);  
+
+  const { messages, input, setInput, append } = useChat({
     api: '/api/chat',
+    onFinish: () => setCompletitionFinished(!completitionFinished),
+    initialMessages: [
+      { role: 'assistant', content: 'Hello! How can I help you today?', id: '1' },
+    ]
   });
+  
+
   const toolInvocations = messages.flatMap(m => m.toolInvocations ?? []);
-  console.log(toolInvocations)
-  const hasSystemModifications = toolInvocations.some(
-    invocation => invocation.toolName === 'systemModifications' && invocation.state === 'result'
-  );
-  const hasGetEntityType = toolInvocations.some(
-    invocation => invocation.toolName === 'getEntityType' && invocation.state === 'result'
-  );
 
-  const [sysInformed, setSysInformed] = useState(false);
-
-  const sendItData = async () => {
+  const sendItData = async (toolname: string) => {
     try {
-    await append({ content: 'ask me about system modifications', role: 'user' });      
+    await append({ content: `ask me about ${toolname}`, role: 'user' });      
     } catch (error) {
       console.error(error)
     }
   }
+  
+  useEffect(() => {
+    for(const invocation of toolInvocations){
+      if(invocation.state === 'result'){
+        setToolCalled(prevTools => prevTools.map(tool => tool.toolName === invocation.toolName ? {toolName: tool.toolName, alreadyAsked: tool.alreadyAsked, informed: true} : tool))
+      }
+    }   
+  }, [completitionFinished])
 
-  if (hasSystemModifications && hasGetEntityType) {
-    console.log('Both systemModifications and getEntityType are present');
-  } else if(!hasSystemModifications && hasGetEntityType && !sysInformed) {
-    setSysInformed(true);
-    sendItData().catch(console.error);
-  }
+  useEffect(() => {
+    const firstUninformedTool = toolCalled.find(tool => !tool.informed);
+
+    if(!firstUninformedTool){
+      setHasFinished(true)
+    }
+
+    if(firstUninformedTool && !firstUninformedTool.alreadyAsked){
+      setToolCalled(prevTools => prevTools.map(tool => tool.toolName === firstUninformedTool.toolName ? {toolName: tool.toolName, alreadyAsked: true, informed: tool.informed} : tool))
+      sendItData(firstUninformedTool.toolName).catch(console.error);
+    }
+  }, [toolCalled])
+
+  useEffect(() => {
+    const invocations = messages.flatMap(m => m.toolInvocations ?? []);
+    const allToolsCalled = invocations.every(i => i.state === 'result');
+    const allToolsPresent = toolCalled.every(tool => invocations.some(invocation => invocation.toolName === tool.toolName));
+    console.log(allToolsCalled, allToolsPresent, invocations)
+    if(allToolsCalled && allToolsPresent){
+      setHasFinished(true)
+    }
+  }, [messages])
+  
+  useEffect(() => {
+    scrollContRef.current?.scrollTo({ top: scrollContRef.current?.scrollHeight, behavior: 'smooth' });    
+  }, [messages]);
+
   return (
-    <div className="flex flex-col w-full max-w-md py-24 h-[90vh] mx-auto stretch overflow-y-scroll">
-      {messages.map(m => (
-        <div key={m.id} className="whitespace-pre-wrap">
+    <div ref={scrollContRef} className="flex flex-col w-full max-w-md py-24 h-[90vh] mx-auto stretch overflow-y-scroll">
+      {messages.map(m => (        
+        <div key={m.id} className="whitespace-pre-wrap mb-4 leading-relaxed">
+          <span className="bg-blue-200 p-2 rounded me-2">
           {m.role === 'user' ? 'User: ' : 'AI: '}
-          {m.content}
+          </span>
+          {m.content === "" ? "...tool invocation..." : m.content}
         </div>
       ))}
 
@@ -49,6 +90,7 @@ export default function Chat() {
           </div>
           )
         ))}
+        {hasFinished && <div className="whitespace-pre-wrap bg-green-600 p-2 text-white uppercase">All tools have been called</div>}
       </div>
 
       <form onSubmit={async(e) => {
