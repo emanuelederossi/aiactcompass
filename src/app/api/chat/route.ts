@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       description: 'Get the type of entity the user organization is in',
       parameters: z.object({
         entity: z
-          .enum(['Provider', 'Deployer', 'Disruptor', 'Importer', 'Product Manufacturer', 'Authorised Representative'])
+          .enum(['Provider', 'Deployer', 'Distributor', 'Importer', 'Product Manufacturer', 'Authorised Representative'])
           .describe(`
           the entity type the user organization is in based on these descriptions: 
               - Provider: a natural or legal person, public authority, agency or other body that develops an AI system or a general purpose AI model (or that has an AI system or a general purpose AI model developed) and places them on the market or puts the system into service under its own name or trademark, whether for payment or free of charge;
