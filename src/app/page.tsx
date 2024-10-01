@@ -3,6 +3,16 @@
 import { useChat } from 'ai/react';
 import { useEffect, useRef, useState } from 'react';
 
+interface ToolInvocation {
+  toolCallId: string;
+  toolName: string;
+  state: string;
+  result?: {
+    content: string;
+    result: string | number | boolean;
+  };
+}
+
 export default function Chat() {
 
   const scrollContRef = useRef<HTMLDivElement>(null);
@@ -10,12 +20,12 @@ export default function Chat() {
   const [hasFinished, setHasFinished] = useState(false);
 
 
-  const [toolCalled, setToolCalled] = useState<{toolName:string, informed: boolean, alreadyAsked: boolean}[]>([
-    { toolName: 'getEntityType', informed: false, alreadyAsked: true },
-    { toolName: 'systemModifications', informed: false, alreadyAsked: false },
-    { toolName: 'checkTerritorialScope', informed: false, alreadyAsked: false },
-    { toolName: 'checkExludedSystems', informed: false, alreadyAsked: false },
-  ]);  
+  const [toolCalled, setToolCalled] = useState<{toolName:string, informed: boolean, alreadyAsked: boolean, skip: {tool: string, exclude: string[]}[]}[]>([
+    { toolName: 'getEntityType', informed: false, alreadyAsked: true, skip: []},
+    { toolName: 'systemModifications', informed: false, alreadyAsked: false, skip: [{tool: "getEntityType", exclude: ["Provider"]}]},
+    { toolName: 'checkTerritorialScope', informed: false, alreadyAsked: false, skip: []},
+    { toolName: 'checkExludedSystems', informed: false, alreadyAsked: false, skip: []},
+  ]); 
 
   const { messages, input, setInput, append } = useChat({
     api: '/api/chat',
@@ -26,7 +36,7 @@ export default function Chat() {
   });
   
 
-  const toolInvocations = messages.flatMap(m => m.toolInvocations ?? []);
+  const toolInvocations: ToolInvocation[] = messages.flatMap(m => m.toolInvocations ?? []);
 
   const sendItData = async (toolname: string) => {
     try {
@@ -39,21 +49,31 @@ export default function Chat() {
   useEffect(() => {
     for(const invocation of toolInvocations){
       if(invocation.state === 'result'){
-        setToolCalled(prevTools => prevTools.map(tool => tool.toolName === invocation.toolName ? {toolName: tool.toolName, alreadyAsked: tool.alreadyAsked, informed: true} : tool))
+        setToolCalled(prevTools => prevTools.map(tool => tool.toolName === invocation.toolName ? {...tool, informed: true} : tool))
       }
     }   
-  }, [completitionFinished])
+  }, [completitionFinished])  
 
   useEffect(() => {
     const firstUninformedTool = toolCalled.find(tool => !tool.informed);
 
-    if(!firstUninformedTool){
-      setHasFinished(true)
-    }
-
+    
     if(firstUninformedTool && !firstUninformedTool.alreadyAsked){
-      setToolCalled(prevTools => prevTools.map(tool => tool.toolName === firstUninformedTool.toolName ? {toolName: tool.toolName, alreadyAsked: true, informed: tool.informed} : tool))
-      sendItData(firstUninformedTool.toolName).catch(console.error);
+      // check fpr skip
+      const skip = firstUninformedTool.skip;
+      console.log(skip)
+      const toolInvocationsClosed = toolInvocations.filter(tool => tool.state === 'result' && 'result' in tool);      
+      const areThereExclusions = toolInvocationsClosed.filter(tool => skip.some(skipTool => skipTool.tool === tool.toolName && skipTool.exclude.includes(tool.result?.result as string))).map(
+        tool => tool.toolName
+      );
+      
+      if(areThereExclusions.length > 0){
+        setToolCalled(prevTools => prevTools.filter(tool => tool.toolName !== firstUninformedTool.toolName));
+        return;
+      }else{        
+        setToolCalled(prevTools => prevTools.map(tool => tool.toolName === firstUninformedTool.toolName ? {...tool, alreadyAsked: true} : tool))
+        sendItData(firstUninformedTool.toolName).catch(console.error);
+      }
     }
   }, [toolCalled])
 
@@ -61,7 +81,6 @@ export default function Chat() {
     const invocations = messages.flatMap(m => m.toolInvocations ?? []);
     const allToolsCalled = invocations.every(i => i.state === 'result');
     const allToolsPresent = toolCalled.every(tool => invocations.some(invocation => invocation.toolName === tool.toolName));
-    console.log(allToolsCalled, allToolsPresent, invocations)
     if(allToolsCalled && allToolsPresent){
       setHasFinished(true)
     }
@@ -84,9 +103,9 @@ export default function Chat() {
 
       <div className="fixed top-0 right-0 flex flex-col gap-2">
         {toolInvocations.map((invocation, i) => (
-          'result' in invocation && invocation.result !== 'No edit provided' && ( 
+          'result' in invocation && invocation.result?.content !== 'No edit provided' && ( 
           <div key={invocation.toolCallId} className="whitespace-pre-wrap bg-red-600 p-2 text-white uppercase">
-            {'result' in invocation ? invocation.result : 'No result available'}
+            {invocation.result!.content || 'No result available'}
           </div>
           )
         ))}
