@@ -11,10 +11,21 @@ interface Category {
   options: { value: string; checked: boolean }[];
 }
 
-const output = ({action}: {action: {category: string, value: string}[]}) => {
+interface Action {
+  category: string;
+  value: string;
+}
+
+interface OutputProps {
+  action: Action[];
+  categoriesAndChecks: Category[];
+  setCategoriesAndChecks: React.Dispatch<React.SetStateAction<Category[]>>;
+}
+
+const output: React.FC<OutputProps> = ({action, categoriesAndChecks, setCategoriesAndChecks}) => {
   
 
-  const [categoriesAndChecks, setCategoriesAndChecks] = useState<Category[]>(initialState)
+
 
   const updateCategoriesAndChecks = async() => {
     setCategoriesAndChecks(prev => {

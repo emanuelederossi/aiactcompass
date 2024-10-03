@@ -13,7 +13,7 @@ interface MappedMessages {
     system?: boolean;
 }
 
-export default function Chat({setAction}: {setAction: (action: {category: string, value: string}[]) => void}) {
+export default function Chat({ setAction, categoriesAndChecks }: { setAction: (action: { category: string, value: string }[]) => void, categoriesAndChecks: { nome: string, options: { value: string, checked: boolean }[] }[] }) {
 
     // get search params
     const params = useSearchParams();
@@ -67,6 +67,7 @@ export default function Chat({setAction}: {setAction: (action: {category: string
 
     const [currentInvocationsNumber, setCurrentInvocationsNumber] = useState<number>(0);
     // VAI ALLA PROSSIMA DOMANDA
+    // ANCORA DA IMPLEMENTARE SKIP TOOL
     useEffect(() => {
         const invocations = messages.flatMap(m => m.toolInvocations ?? []);
         if (invocations.length > currentInvocationsNumber) {
@@ -75,6 +76,7 @@ export default function Chat({setAction}: {setAction: (action: {category: string
             setCurrentInvocationsNumber(invocations.length);
             const nextTool = domande.find(tool => tool.index === currentToolIndex + 1);
             if (nextTool) {
+
                 setCurrentToolIndex(nextTool.index);
                 sendItData(nextTool.toolName, nextTool.index);
             }
@@ -91,27 +93,27 @@ export default function Chat({setAction}: {setAction: (action: {category: string
     return (
         <div ref={scrollContRef} className="flex flex-col w-full py-24 h-[90vh] mx-auto stretch overflow-y-scroll">
             {
-             params.get('debug') ?
-             mappedMessages.map(m => (
-                m.content !== "" &&
-                <div key={m.id} className={`whitespace-pre-wrap mb-4 leading-relaxed ${m.system && "text-red-600 font-semibold"}`}>
-                    <span className={`bg-blue-200 p-2 rounded me-2`}>
-                        {m.role === 'user' ? 'User: ' : 'AI: '}
-                    </span>
-                    {m.content === "" ? "...tool invocation..." : m.content}
-                </div>
-            ))
-            :
-            filteredMessages.map(m => (
-                m.content !== "" &&
-                <div key={m.id} className={`whitespace-pre-wrap mb-4 leading-relaxed ${m.system && "text-red-600 font-semibold"}`}>
-                    <span className={`bg-blue-200 p-2 rounded me-2`}>
-                        {m.role === 'user' ? 'User: ' : 'AI: '}
-                    </span>
-                    {m.content === "" ? "...tool invocation..." : m.content}
-                </div>
-            ))    
-        }
+                params.get('debug') ?
+                    mappedMessages.map(m => (
+                        m.content !== "" &&
+                        <div key={m.id} className={`whitespace-pre-wrap mb-4 leading-relaxed ${m.system && "text-red-600 font-semibold"}`}>
+                            <span className={`bg-blue-200 p-2 rounded me-2`}>
+                                {m.role === 'user' ? 'User: ' : 'AI: '}
+                            </span>
+                            {m.content === "" ? "...tool invocation..." : m.content}
+                        </div>
+                    ))
+                    :
+                    filteredMessages.map(m => (
+                        m.content !== "" &&
+                        <div key={m.id} className={`whitespace-pre-wrap mb-4 leading-relaxed ${m.system && "text-red-600 font-semibold"}`}>
+                            <span className={`bg-blue-200 p-2 rounded me-2`}>
+                                {m.role === 'user' ? 'User: ' : 'AI: '}
+                            </span>
+                            {m.content === "" ? "...tool invocation..." : m.content}
+                        </div>
+                    ))
+            }
 
             <form onSubmit={async (e) => {
                 e.preventDefault()
