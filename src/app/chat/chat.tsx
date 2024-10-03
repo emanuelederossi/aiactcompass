@@ -1,9 +1,10 @@
 'use client';
 
 import { Message, useChat } from 'ai/react';
-import { useEffect, useRef, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import { Domanda, domande } from '../domande';
 import { ToolInvocation } from 'ai';
+import { useSearchParams } from 'next/navigation';
 
 interface MappedMessages {
     content: string;
@@ -13,6 +14,9 @@ interface MappedMessages {
 }
 
 export default function Chat({setAction}: {setAction: (action: {category: string, value: string}[]) => void}) {
+
+    // get search params
+    const params = useSearchParams();
 
     const [completitionFinished, setCompletitionFinished] = useState(false);
     const [currentToolIndex, setCurrentToolIndex] = useState<number>(1);
@@ -25,7 +29,6 @@ export default function Chat({setAction}: {setAction: (action: {category: string
             { role: 'assistant', content: 'Hello! How can I help you today?', id: '1' },
         ],
         initialInput: 'ask me about getEntityType'
-
     });
 
     const filteredMessages: MappedMessages[] = messages.filter(m => m.content.slice(0, 36) !== "__Please review my previous messages");
@@ -87,7 +90,9 @@ export default function Chat({setAction}: {setAction: (action: {category: string
 
     return (
         <div ref={scrollContRef} className="flex flex-col w-full py-24 h-[90vh] mx-auto stretch overflow-y-scroll">
-            {filteredMessages.map(m => (
+            {
+             params.get('debug') ?
+             mappedMessages.map(m => (
                 m.content !== "" &&
                 <div key={m.id} className={`whitespace-pre-wrap mb-4 leading-relaxed ${m.system && "text-red-600 font-semibold"}`}>
                     <span className={`bg-blue-200 p-2 rounded me-2`}>
@@ -95,7 +100,18 @@ export default function Chat({setAction}: {setAction: (action: {category: string
                     </span>
                     {m.content === "" ? "...tool invocation..." : m.content}
                 </div>
-            ))}
+            ))
+            :
+            filteredMessages.map(m => (
+                m.content !== "" &&
+                <div key={m.id} className={`whitespace-pre-wrap mb-4 leading-relaxed ${m.system && "text-red-600 font-semibold"}`}>
+                    <span className={`bg-blue-200 p-2 rounded me-2`}>
+                        {m.role === 'user' ? 'User: ' : 'AI: '}
+                    </span>
+                    {m.content === "" ? "...tool invocation..." : m.content}
+                </div>
+            ))    
+        }
 
             <form onSubmit={async (e) => {
                 e.preventDefault()
