@@ -16,7 +16,7 @@ export const domande: Domanda[] = [
     {
         index: 1,
         toolName: 'getEntityType',
-        description: 'Check the entity type of the user organization',
+        description: 'Determines the entity type of the user organization',
         dependencies: [],
         options: [
             {
@@ -63,8 +63,7 @@ export const domande: Domanda[] = [
             }
 
         ],
-        describe: `
-            the entity type the user organization is in based on these descriptions: 
+        describe: `             
               - Provider: a natural or legal person, public authority, agency or other body that develops an AI system or a general purpose AI model (or that has an AI system or a general purpose AI model developed) and places them on the market or puts the system into service under its own name or trademark, whether for payment or free of charge;
               - Deployer: any natural or legal person, public authority, agency or other body using an AI system under its authority except where the AI system is used in the course of a personal non-professional activity;
               - Distributor: any natural or legal person in the supply chain, other than the provider or the importer, that makes an AI system available on the Union market;
@@ -118,7 +117,7 @@ export const domande: Domanda[] = [
     {
         index: 3,
         toolName: 'checkTerritorialScope',
-        description: 'Check if the user organization is within the territorial scope of the AI ACT',
+        description: 'Check if the user organization is within the territorial scope of the AI ACT based on the following criteria',
         dependencies: [],
         options: [
             {
@@ -145,7 +144,7 @@ export const domande: Domanda[] = [
     {
         index: 4,
         toolName: 'checkExludedSystems',
-        description: 'Check if the user organization system is excluded from the AI ACT',
+        description: 'Check if the user organization system is excluded from the AI ACT based on the following criteria',
         dependencies: [],
         options: [
             {
