@@ -39,7 +39,7 @@ export default function Chat() {
   const [toolCalled, setToolCalled] = useState<ToolDb[]>(initalState); 
 
   const { messages, input, setInput, append } = useChat({
-    api: '/api/chat',
+    api: '/api/chat2',
     onFinish: () => setCompletitionFinished(!completitionFinished),
     initialMessages: [
       { role: 'assistant', content: 'Hello! How can I help you today?', id: '1' },
