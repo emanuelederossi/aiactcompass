@@ -1,36 +1,40 @@
-"use client";
+import React from 'react'
+import InnerWrapper from './innerWrapper'
+import { getCategories, getDomande } from '~/server/actions';
+import { DomandaDb } from '../domande'; // Ensure you have the correct import for DomandaDb
 
-import React, { useState } from 'react'
-import Chat from './chat'
-import Output from './output'
-import { categorie } from '../categorie'
+interface Action {
+  category: string;
+  value: string;
+}
 
-const initialState = categorie.map(c => {
-  const options = c.options.map(o => ({value: o, checked: false}))
-  return {...c, options}
-})
 interface Category {
-    nome: string;
-    options: { value: string; checked: boolean }[];
-  }
+  id: number;
+  nome: string;
+  options: string[];
+}
 
-const page = () => {
+const page = async() => {
+ const domande = await getDomande();
+ const categorie = await getCategories();
+  // Ensure domande is of type DomandaDb[]
+  const formattedDomande: DomandaDb[] = domande.map(d => ({
+    ...d,
+    dependencies: d.dependencies as { category: string; value: string[]; }[],
+    options: d.options as { name: string; actions?: Action[] | undefined; }[]
+  }));
 
-    const [categoriesAndChecks, setCategoriesAndChecks] = useState<Category[]>(initialState)
-    const [action, setAction] = useState<{category: string, value: string}[]>([]);
-
+  // Ensure categorie is of type Category[]
+  const formattedCategorie: Category[] = categorie.map(c => ({
+    id: c.id,
+    nome: c.nome,
+    options: c.options as string[]
+  }));
   return (
-    <div className='flex justify-center'>
-    <div className='w-1/3'></div>
-    <div className='w-full'>
-      <Chat setAction={setAction} categoriesAndChecks={categoriesAndChecks} />
-    </div>
-    <div className='w-1/3'>
-    <Output 
-    categoriesAndChecks={categoriesAndChecks}
-    setCategoriesAndChecks={setCategoriesAndChecks}
-    action={action} />
-    </div>
+    <div className='flex justify-center'>  
+    {formattedDomande && formattedCategorie && (
+      <InnerWrapper domande={formattedDomande} categorie={formattedCategorie}/>
+    )}    
     </div>
   )
 }

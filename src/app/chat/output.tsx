@@ -1,11 +1,4 @@
 import React, { use, useEffect, useState } from 'react'
-import { categorie } from '../categorie'
-
-const initialState = categorie.map(c => {
-  const options = c.options.map(o => ({value: o, checked: false}))
-  return {...c, options}
-})
-
 interface Category {
   nome: string;
   options: { value: string; checked: boolean }[];
@@ -93,7 +86,7 @@ const output: React.FC<OutputProps> = ({action, categoriesAndChecks, setCategori
             </div>
           </div>
         ))}
-      </div>
+      </div>      
     </div>
   )
 }

@@ -1,9 +1,11 @@
 // Example model schema from the Drizzle docs
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
-import { sql } from "drizzle-orm";
+import { desc, sql } from "drizzle-orm";
 import {
   index,
+  integer,
+  jsonb,
   pgTableCreator,
   serial,
   timestamp,
@@ -18,19 +20,30 @@ import {
  */
 export const createTable = pgTableCreator((name) => `compass_${name}`);
 
-export const posts = createTable(
-  "post",
+export const domanda = createTable(
+  "domanda",
   {
     id: serial("id").primaryKey(),
-    name: varchar("name", { length: 256 }),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
-      () => new Date()
-    ),
+    index: integer("index").notNull(),
+    toolName: varchar("tool_name", { length: 256 }).notNull(),
+    question: varchar("question", { length: 2048 }).notNull(),
+    dependencies: jsonb("dependencies").notNull(),
+    options: jsonb("options").notNull(),
+    describe: varchar("describe", { length: 2048 }).notNull(),
   },
-  (example) => ({
-    nameIndex: index("name_idx").on(example.name),
+  (domanda) => ({
+    toolNameIndex: index("tool_name_idx").on(domanda.toolName),
+  })
+);
+
+export const categoria = createTable(
+  "categoria",
+  {
+    id: serial("id").primaryKey(),
+    nome: varchar("nome", { length: 256 }).notNull(),
+    options: jsonb("options").notNull(),
+  },
+  (categoria) => ({
+    nomeIndex: index("nome_idx").on(categoria.nome),
   })
 );

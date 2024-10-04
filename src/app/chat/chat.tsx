@@ -1,8 +1,8 @@
 'use client';
 
 import { Message, useChat } from 'ai/react';
-import { use, useEffect, useRef, useState } from 'react';
-import { Domanda, domande } from '../domande';
+import { useEffect, useRef, useState } from 'react';
+import { DomandaDb } from '../domande';
 import { ToolInvocation } from 'ai';
 import { useSearchParams } from 'next/navigation';
 
@@ -13,13 +13,25 @@ interface MappedMessages {
     system?: boolean;
 }
 
-export default function Chat({ setAction, categoriesAndChecks }: { setAction: (action: { category: string, value: string }[]) => void, categoriesAndChecks: { nome: string, options: { value: string, checked: boolean }[] }[] }) {
+
+export default function Chat({ 
+    setAction, 
+    categoriesAndChecks, 
+    domande,
+    currentToolIndex,
+    setCurrentToolIndex
+}: { 
+    setAction: (action: { category: string, value: string }[]) => void, 
+    categoriesAndChecks: { nome: string, options: { value: string, checked: boolean }[] }[], 
+    domande: DomandaDb[],
+    currentToolIndex: number,
+    setCurrentToolIndex: (index: number) => void
+}) {
 
     // get search params
     const params = useSearchParams();
 
     const [completitionFinished, setCompletitionFinished] = useState(false);
-    const [currentToolIndex, setCurrentToolIndex] = useState<number>(1);
 
 
     const { messages, input, setInput, append } = useChat({

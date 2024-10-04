@@ -7,7 +7,17 @@ export interface Domanda {
     index: number;
     toolName: string;
     description: string;
-    dependencies: { category: string, conditions: string[] }[];
+    dependencies: { category: string, value: string[] }[];
+    options: { name: string, actions?: Action[] }[];
+    describe: string;
+}
+
+export interface DomandaDb {
+    id: number;
+    index: number;
+    toolName: string;
+    question: string;
+    dependencies: { category: string, value: string[] }[];
     options: { name: string, actions?: Action[] }[];
     describe: string;
 }
@@ -81,7 +91,7 @@ export const domande: Domanda[] = [
         dependencies: [
             {
                 category: 'getEntityType',
-                conditions: ['!Provider']
+                value: ['!Provider']
             }
         ],
         options: [
