@@ -22,7 +22,7 @@ const TextInput = ({ name, type, required, handleChange, onKeyDown, value }: { n
   )
 }
 
-const form = () => {
+const Form = () => {
   const [formData, setFormData] = useState<CategoryDb>({
     nome: '',
     options: []
@@ -82,4 +82,4 @@ const form = () => {
   )
 }
 
-export default form
+export default Form

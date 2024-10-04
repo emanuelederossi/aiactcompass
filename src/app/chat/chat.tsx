@@ -43,9 +43,9 @@ export default function Chat({
         initialInput: 'ask me about getEntityType'
     });
 
-    const filteredMessages: MappedMessages[] = messages.filter(m => m.content.slice(0, 36) !== "__Please review my previous messages");
+    const filteredMessages: MappedMessages[] = messages.filter(m => !m.content.startsWith("__Please review my previous messages"));
     const mappedMessages: MappedMessages[] = messages.map(m => {
-        if (m.content.slice(0, 36) === "__Please review my previous messages") {
+        if (m.content.startsWith("__Please review my previous messages")) {
             return { ...m, system: true }
         }
         return m;
@@ -90,7 +90,7 @@ export default function Chat({
             if (nextTool) {
 
                 setCurrentToolIndex(nextTool.index);
-                sendItData(nextTool.toolName, nextTool.index);
+                sendItData(nextTool.toolName, nextTool.index).catch(error => console.error(error));
             }
         }
     }, [completitionFinished])

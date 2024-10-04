@@ -20,7 +20,7 @@ interface CategoryDb {
   options: string[];
 }
 
-const page = ({ domande, categorie }: { domande: DomandaDb[], categorie: CategoryDb[] }) => {
+const InnerWrapper = ({ domande, categorie }: { domande: DomandaDb[], categorie: CategoryDb[] }) => {
 
   const [categoriesAndChecks, setCategoriesAndChecks] = useState<Category[]>(initialState)
   const [action, setAction] = useState<{ category: string, value: string }[]>([]);
@@ -47,4 +47,4 @@ const page = ({ domande, categorie }: { domande: DomandaDb[], categorie: Categor
   )
 }
 
-export default page
+export default InnerWrapper

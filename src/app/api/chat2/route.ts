@@ -3,7 +3,7 @@ import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 
 import { domande } from '~/app/domande';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 
 interface Message {
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
     const tool = domande.find((domanda) => domanda.index === data.toolIndex)
     if(!tool) {
-      return {status: 404, body: 'Tool not found'}
+      return NextResponse.json({ error: 'Tool not found' }, { status: 404 });
     }
     const tools = {
       [tool.toolName]: {

@@ -83,28 +83,30 @@ const Page = ({ categories }: { categories: CategoryDb[] }) => {
 
     const handleChangeOptions = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, i: number) => {
         const { name, value } = e.target;
-        const fuckingname = name as string
+
         setFormData((prevState) => {
             const options = [...prevState.options];
             const option = options[i];
             if (option && (name in option)) {
-                (option as any)[name] = value;
+                if (option) {
+                    (option as Record<string, string | undefined>)[name] = value;
+                }
             } else {
-                options[i] = { ...option, [fuckingname]: value ?? "" } as { name: string; category?: string, value?: string }
+                options[i] = { ...option, [name]: value ?? "" } as { name: string; category?: string, value?: string }
             }
             return { ...prevState, options }
         })
     };
     const handleChangeDependencies = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, i: number) => {
         const { name, value } = e.target;
-        const fuckingname = name as string
+        
         setFormData((prevState) => {
             const dependencies = [...prevState.dependencies];
             const dependency = dependencies[i];
             if (dependency && (name in dependency)) {
-                (dependency as any)[name] = value;
+                (dependency as Record<string, string>)[name] = value;
             } else {
-                dependencies[i] = { ...dependency, [fuckingname]: value ?? "" } as { category: string, value: string }
+                dependencies[i] = { ...dependency, [name]: value ?? "" } as { category: string, value: string }
             }
             return { ...prevState, dependencies }
         })
@@ -239,8 +241,8 @@ const Page = ({ categories }: { categories: CategoryDb[] }) => {
                                 </select>
                             </div>
                             {
-                                formData.dependencies[i]?.category && formData.dependencies[i]?.category !== 'none' && formData.dependencies[i]?.value !== 'none' && (
-                                    formData.dependencies[i]?.value && formData.dependencies[i]?.value.startsWith('!') ? (
+                                formData.dependencies[i]?.category !== 'none' && formData.dependencies[i]?.value !== 'none' && (
+                                    formData.dependencies[i]?.value?.startsWith('!') ? (
                                         <p className='text-white p-2 rounded-md bg-slate-600'>
                                             This question will be shown ONLY if the user is <span className='uppercase font-bold'>NOT</span> already a <span className='uppercase font-bold'>{formData.dependencies[i]?.value.slice(1)}</span>
                                         </p>

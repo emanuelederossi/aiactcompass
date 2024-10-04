@@ -1,4 +1,5 @@
-import React, { use, useEffect, useState } from 'react'
+import { error } from 'console';
+import React, { useEffect } from 'react'
 interface Category {
   nome: string;
   options: { value: string; checked: boolean }[];
@@ -15,7 +16,7 @@ interface OutputProps {
   setCategoriesAndChecks: React.Dispatch<React.SetStateAction<Category[]>>;
 }
 
-const output: React.FC<OutputProps> = ({action, categoriesAndChecks, setCategoriesAndChecks}) => {
+const Output: React.FC<OutputProps> = ({action, categoriesAndChecks, setCategoriesAndChecks}) => {
   
 
 
@@ -28,7 +29,7 @@ const output: React.FC<OutputProps> = ({action, categoriesAndChecks, setCategori
         console.log('category', category)
         if (category) {         
           // PUSH
-          if(a.value.slice(0, 5) === 'PUSH(') {
+          if(a.value.startsWith('PUSH(')) {
             console.log(a.value)
             const option = category.options.find(o => a.value === `PUSH("${o.value}")`)
             console.log('option', option)
@@ -37,7 +38,7 @@ const output: React.FC<OutputProps> = ({action, categoriesAndChecks, setCategori
             }
           }
           // CHANGE
-          else if(a.value.slice(0, 7) === 'CHANGE(') {
+          else if(a.value.startsWith('CHANGE(')) {
             const toRemove = a.value.split('"')[1]
             const toAdd = a.value.split('"')[3]
             const optionToRemove = category.options.find(o => a.value === toRemove)
@@ -63,7 +64,7 @@ const output: React.FC<OutputProps> = ({action, categoriesAndChecks, setCategori
   }
 
   useEffect(() => {
-    updateCategoriesAndChecks()
+    updateCategoriesAndChecks().catch(error => console.error(error))
   }, [action])
 
 
@@ -91,4 +92,4 @@ const output: React.FC<OutputProps> = ({action, categoriesAndChecks, setCategori
   )
 }
 
-export default output
+export default Output
