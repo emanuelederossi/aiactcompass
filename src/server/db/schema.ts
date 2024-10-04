@@ -26,10 +26,10 @@ export const domanda = createTable(
     id: serial("id").primaryKey(),
     index: integer("index").notNull(),
     toolName: varchar("tool_name", { length: 256 }).notNull(),
-    question: varchar("question", { length: 2048 }).notNull(),
+    question: varchar("question", { length: 4096 }).notNull(),
     dependencies: jsonb("dependencies").notNull(),
     options: jsonb("options").notNull(),
-    describe: varchar("describe", { length: 2048 }).notNull(),
+    describe: varchar("describe", { length: 4096 }).notNull(),
   },
   (domanda) => ({
     toolNameIndex: index("tool_name_idx").on(domanda.toolName),

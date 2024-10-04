@@ -147,7 +147,6 @@ export default function Chat({
 
     const [currentInvocationsNumber, setCurrentInvocationsNumber] = useState<number>(0);
     // VAI ALLA PROSSIMA DOMANDA
-    // ANCORA DA IMPLEMENTARE SKIP TOOL
     useEffect(() => {
         const invocations = messages.flatMap(m => m.toolInvocations ?? []);
         if (invocations.length > currentInvocationsNumber) {
@@ -156,9 +155,11 @@ export default function Chat({
                 const returedOutputState = executeActions(lastInvocation);
                 setCurrentInvocationsNumber(invocations.length);
                 const nextTool = domande.find(tool => tool.index === currentToolIndex + 1);
+                console.log('nextTool', nextTool);
                 if (nextTool && returedOutputState) {
                     // CHECK IF NEXT TOOL IS A TOOL TO SKIP
                     const skip = skipTool(nextTool, returedOutputState);
+                    console.log('skip', skip);
                     if (skip) {
                         const nextnextTool = domande.find(tool => tool.index === currentToolIndex + 2);
                         if (nextnextTool) {

@@ -119,6 +119,7 @@ export async function postDomanda(quest: DomandaDbDc) {
         await db.insert(domanda).values(quest);
         return {success: true};
     } catch (error) {
+        console.log(error);
         return {success: false, error};
     }
 }
