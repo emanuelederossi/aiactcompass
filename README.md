@@ -31,6 +31,8 @@ Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/ver
 
 [x] - aggiungere insert categoria
 [x] - controllare se exit funziona
-[] - fare SKIP
-[] - edit domanda con index univoco
+[x] - fare SKIP
+[] - visualizza categoria
 [] - edit categoria
+[] - visualizza domande
+[] - edit domanda con index univoco

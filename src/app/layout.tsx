@@ -19,7 +19,7 @@ export default function RootLayout({
       
         <html lang="en" className={`${GeistSans.variable}`}>
           <body>
-            <header>
+            <header className="bg-slate-600">
               <SignedOut>
                 <SignInButton />
               </SignedOut>

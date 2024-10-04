@@ -1,7 +1,8 @@
 "use client"
 
 import React, { useState } from 'react';
-import { postDomanda } from '~/server/actions';
+import { DomandaDb } from '~/app/domande';
+import { postDomanda, putDomanda } from '~/server/actions';
 
 export interface DomandaDbForm {
     id: number;
@@ -63,15 +64,17 @@ const TextArea = ({ name, required, handleChange, value }: { name: string, requi
     )
 }
 
-const Page = ({ categories }: { categories: CategoryDb[] }) => {
+const Page = ({ categories, domanda }: { categories: CategoryDb[], domanda: DomandaDb }) => {
+    const initialDep = domanda.dependencies.map(dep => ({category: dep.category, value: dep.value[0]}))
+    const initialOptions = domanda.options.map(option => ({name: option.name, category: option.actions?.[0]?.category, value: option.actions?.[0]?.value.split('"')[1]?.split('"')[0]}))
     const [formData, setFormData] = useState<DomandaDbForm>({
-        id: 0,
-        index: 0,
-        toolName: "",
-        question: "",
-        describe: "",
-        dependencies: [] as { category: string, value: string }[],
-        options: [] as { name: string; category?: string; value?: string }[]
+        id: domanda.id,
+        index: domanda.index,
+        toolName: domanda.toolName,
+        question: domanda.question,
+        describe: domanda.describe,
+        dependencies: domanda.dependencies.map(dep => ({category: dep.category, value: dep.value[0]})) as { category: string, value: string }[],
+        options: initialOptions as { name: string; category?: string; value?: string }[]
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -135,28 +138,17 @@ const Page = ({ categories }: { categories: CategoryDb[] }) => {
         console.log(modifiedFormData);
         // remove id from modifiedFormData
         delete modifiedFormData.id;
-        const result = await postDomanda(modifiedFormData);
-        if(result.success){
-            setFormData({
-                id: 0,
-                index: 0,
-                toolName: "",
-                question: "",
-                describe: "",
-                dependencies: [],
-                options: []
-            })
-            alert('question added successfully')
-            setOptionCount(0)
-            setDependenciesCount(0)
+        const result = await putDomanda(domanda.id, modifiedFormData);
+        if(result.success){            
+            alert('question added successfully')            
         }else{
             console.log(result.error)
             alert('An error occurred')
         }
     }
 
-    const [optionCount, setOptionCount] = useState(0);
-    const [dependenciesCount, setDependenciesCount] = useState(0);
+    const [optionCount, setOptionCount] = useState(domanda.options.length);
+    const [dependenciesCount, setDependenciesCount] = useState(domanda.dependencies.length);
 
     return (
         <>
@@ -218,6 +210,7 @@ const Page = ({ categories }: { categories: CategoryDb[] }) => {
                                 </label>
                                 <select
                                     name={`category`}
+                                    value={formData.dependencies[i]?.category}
                                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChangeDependencies(e, i)}
                                     id="countries4" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                     {[{ nome: "none" }, ...categories].map((option, i) => (
@@ -228,6 +221,7 @@ const Page = ({ categories }: { categories: CategoryDb[] }) => {
                                 <label htmlFor="countries5" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">What is gonna be added</label>
                                 <select
                                     name={`value`}
+                                    value={formData.dependencies[i]?.value}
                                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChangeDependencies(e, i)}
                                     id="countries5" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                     <option value="none">select</option>
@@ -291,7 +285,7 @@ const Page = ({ categories }: { categories: CategoryDb[] }) => {
                     Array.from({ length: optionCount }).map((_, i) => (
                         <div key={i} className='mb-4 p-2 border border-gray-600 rounded-xl'>
                         <div className="mb-4 p-2 border border-gray-600 rounded-xl">
-                            <TextInput handleChange={(e) => handleChangeOptions(e, i)} name={`name`} required />
+                            <TextInput handleChange={(e) => handleChangeOptions(e, i)} value={formData.options[i]?.name} name={`name`} required />
                             <label className="flex items-center mb-2 text-sm font-medium text-gray-900 dark:text-white">
                                 Action
                                 {
@@ -313,6 +307,7 @@ const Page = ({ categories }: { categories: CategoryDb[] }) => {
                                 <select
                                     name={`category`}
                                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChangeOptions(e, i)}
+                                    value={formData.options[i]?.category}
                                     id="countries" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                     {[{ nome: "none" }, ...categories].map((option, i) => (
                                         <option key={i} value={option.nome}>{option.nome}</option>
@@ -323,6 +318,7 @@ const Page = ({ categories }: { categories: CategoryDb[] }) => {
                                 <select
                                     name={`value`}
                                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChangeOptions(e, i)}
+                                    value={formData.options[i]?.value}
                                     id="countries2" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                     <option value="">select</option>
                                     {categories.find(c => c.nome === formData.options[i]?.category)?.options.map((option, i) => (
@@ -353,7 +349,7 @@ const Page = ({ categories }: { categories: CategoryDb[] }) => {
                     </div>
                     <label htmlFor="remember" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Remember me</label>
                 </div> */}
-                <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
+                <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save</button>
             </form>
         </>
     );

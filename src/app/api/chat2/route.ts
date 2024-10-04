@@ -34,28 +34,6 @@ export async function POST(req: NextRequest) {
           },
         },
       };
- 
-    // const tools = domande.reduce((acc, domanda: Domanda) => {
-    //     const options = domanda.options.map(option => option.name).filter(option => option !== undefined)
-    //     acc[domanda.toolName] = {
-    //         description: domanda.description,
-    //         parameters: z.object({
-    //             entity: z
-    //             .enum([options[0]?? "Non dovrebbe", ...options.slice(1)])
-    //             .describe(domanda.describe),
-    //         }),
-    //         execute: async ({ entity }: {entity:string}) => {
-    //           if (!entity) {
-    //             return {content: 'No entity provided', result: 'No entity provided'};
-    //           }                
-    //           return {content: `The user organization is a ${entity}`, result: entity};
-            
-    //         },
-    //     };
-    //     return acc;
-    // }, {} as Record<string, any>);
-
-  
   
     const result = await streamText({
       model: openai('gpt-4o'),
