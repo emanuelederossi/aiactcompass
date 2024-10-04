@@ -3,12 +3,8 @@
 import { useState } from 'react'
 import Chat from './chat'
 import Output from './output'
-import { categorie } from '../categorie'
 import { DomandaDb } from '../domande'
-const initialState = categorie.map(c => {
-  const options = c.options.map(o => ({ value: o, checked: false }))
-  return { ...c, options }
-})
+
 interface Category {
   nome: string;
   options: { value: string; checked: boolean }[];
@@ -22,8 +18,12 @@ interface CategoryDb {
 
 const InnerWrapper = ({ domande, categorie }: { domande: DomandaDb[], categorie: CategoryDb[] }) => {
 
+  const initialState = categorie.map(c => {
+    const options = c.options.map(o => ({ value: o, checked: false }))
+    return { ...c, options }
+  })
+
   const [categoriesAndChecks, setCategoriesAndChecks] = useState<Category[]>(initialState)
-  const [action, setAction] = useState<{ category: string, value: string }[]>([]);
   const [currentToolIndex, setCurrentToolIndex] = useState<number>(1);
 
   return (
@@ -33,15 +33,15 @@ const InnerWrapper = ({ domande, categorie }: { domande: DomandaDb[], categorie:
       </div>
       <div className='w-full'>
         <Chat 
+          setCategoriesAndChecks={setCategoriesAndChecks}
         currentToolIndex={currentToolIndex}
-        setCurrentToolIndex={setCurrentToolIndex}
-        setAction={setAction} domande={domande} categoriesAndChecks={categoriesAndChecks} />
+        setCurrentToolIndex={setCurrentToolIndex}        
+        domande={domande} categoriesAndChecks={categoriesAndChecks} />
       </div>
       <div className='w-1/3'>
         <Output
           categoriesAndChecks={categoriesAndChecks}
-          setCategoriesAndChecks={setCategoriesAndChecks}
-          action={action} />
+          />
       </div>
     </div>
   )

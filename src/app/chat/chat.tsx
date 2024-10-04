@@ -13,25 +13,35 @@ interface MappedMessages {
     system?: boolean;
 }
 
+interface Action {
+    value: string;
+}
 
-export default function Chat({ 
-    setAction, 
-    categoriesAndChecks, 
+interface Category {
+    nome: string;
+    options: { value: string; checked: boolean }[];
+}
+
+
+export default function Chat({
+    categoriesAndChecks,
     domande,
     currentToolIndex,
-    setCurrentToolIndex
-}: { 
-    setAction: (action: { category: string, value: string }[]) => void, 
-    categoriesAndChecks: { nome: string, options: { value: string, checked: boolean }[] }[], 
+    setCurrentToolIndex,
+    setCategoriesAndChecks
+}: {
+    categoriesAndChecks: { nome: string, options: { value: string, checked: boolean }[] }[],
     domande: DomandaDb[],
     currentToolIndex: number,
-    setCurrentToolIndex: (index: number) => void
+    setCurrentToolIndex: (index: number) => void,
+    setCategoriesAndChecks: React.Dispatch<React.SetStateAction<Category[]>>
 }) {
 
     // get search params
     const params = useSearchParams();
 
     const [completitionFinished, setCompletitionFinished] = useState(false);
+
 
 
     const { messages, input, setInput, append } = useChat({
@@ -63,18 +73,76 @@ export default function Chat({
         }
     }
 
+    // UPDATE CATEGORIES AND CHECKS
+    const updateCategoriesAndChecks = (act: { category: string, value: string }[]) => {        
+        const prev = categoriesAndChecks;
+        const clone = JSON.parse(JSON.stringify(prev)) as Category[]
+            act.forEach(a => {
+                const category = clone.find((c: Category) => c.nome === a.category)
+
+                if (category && a.value) {
+                    // PUSH
+                    if (a.value.startsWith('PUSH(')) {
+
+                        const option = category.options.find(o => a.value === `PUSH("${o.value}")`)
+
+                        if (option) {
+                            option.checked = true
+                        }
+                    }
+                    // CHANGE
+                    else if (a.value.startsWith('CHANGE(')) {
+                        const toRemove = a.value.split('"')[1]
+                        const toAdd = a.value.split('"')[3]
+                        const optionToRemove = category.options.find(o => a.value === toRemove)
+                        const optionToAdd = category.options.find(o => a.value === toAdd)
+                        if (optionToRemove) {
+                            optionToRemove.checked = false
+                        }
+                        if (optionToAdd) {
+                            optionToAdd.checked = true
+                        }
+                    }
+                }
+            })
+        setCategoriesAndChecks(clone)
+        return clone
+    }
+
     // ESEGUI LE AZIONI AL TOOL INVOCATION
     const executeActions = (invocation?: ToolInvocation) => {
-        if (!invocation) return;
+        if (!invocation) return null;
         const toolName = invocation?.toolName;
         const invocationResult = 'result' in invocation && invocation.result;
         const domanda = domande.find(d => d.toolName === toolName);
         const option = domanda?.options.find(o => o.name === invocationResult);
         // INVIA LE AZIONI AL COMPONENTE PADRE
         if (option?.actions) {
-            setAction(option.actions);
-            console.log('Tool:', option?.actions)
+            return updateCategoriesAndChecks(option.actions);
         }
+        return null
+    }
+
+    const skipTool = (tool: DomandaDb, returedOutputState: Category[]) => {
+        const dependenciesTOOL = tool.dependencies;
+        if (dependenciesTOOL.length === 0) return false;
+        let skip = false;
+        dependenciesTOOL.forEach(dep => {
+            const categoryOUT = returedOutputState.find(c => c.nome === dep.category);
+            if (categoryOUT) {
+                dep.value.forEach(v => {
+                    const option = categoryOUT.options.find(o => o.value === v);
+                    const optionNegative = categoryOUT.options.find(o => `!${o.value}` === v);
+                    if (option && !option.checked) {
+                        skip = true;
+                    }
+                    if (optionNegative?.checked) {
+                        skip = true;
+                    }
+                })
+            }
+        })
+        return skip;
     }
 
     const [currentInvocationsNumber, setCurrentInvocationsNumber] = useState<number>(0);
@@ -84,13 +152,27 @@ export default function Chat({
         const invocations = messages.flatMap(m => m.toolInvocations ?? []);
         if (invocations.length > currentInvocationsNumber) {
             const lastInvocation = invocations[invocations.length - 1];
-            if (lastInvocation && lastInvocation.state === 'result') executeActions(lastInvocation);
-            setCurrentInvocationsNumber(invocations.length);
-            const nextTool = domande.find(tool => tool.index === currentToolIndex + 1);
-            if (nextTool) {
-
-                setCurrentToolIndex(nextTool.index);
-                sendItData(nextTool.toolName, nextTool.index).catch(error => console.error(error));
+            if (lastInvocation && lastInvocation.state === 'result') {
+                const returedOutputState = executeActions(lastInvocation);
+                setCurrentInvocationsNumber(invocations.length);
+                const nextTool = domande.find(tool => tool.index === currentToolIndex + 1);
+                if (nextTool && returedOutputState) {
+                    // CHECK IF NEXT TOOL IS A TOOL TO SKIP
+                    const skip = skipTool(nextTool, returedOutputState);
+                    if (skip) {
+                        const nextnextTool = domande.find(tool => tool.index === currentToolIndex + 2);
+                        if (nextnextTool) {
+                            setCurrentToolIndex(nextnextTool.index);
+                            sendItData(nextnextTool.toolName, nextnextTool.index).catch(error => console.error(error));
+                        }
+                    } else {
+                        setCurrentToolIndex(nextTool.index);
+                        sendItData(nextTool.toolName, nextTool.index).catch(error => console.error(error));
+                    }
+                }else if (nextTool) {
+                    setCurrentToolIndex(nextTool.index);
+                    sendItData(nextTool.toolName, nextTool.index).catch(error => console.error(error));
+                }
             }
         }
     }, [completitionFinished])
