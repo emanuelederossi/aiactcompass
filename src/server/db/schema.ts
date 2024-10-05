@@ -47,3 +47,13 @@ export const categoria = createTable(
     nomeIndex: index("nome_idx").on(categoria.nome),
   })
 );
+
+export const output = createTable(
+  "output",
+  {
+    id: serial("id").primaryKey(),
+    title: varchar("title", { length: 256 }).notNull(),
+    content: varchar("content", { length: 8192 }).notNull(),
+    categories: jsonb("categories").notNull(),
+  }
+);

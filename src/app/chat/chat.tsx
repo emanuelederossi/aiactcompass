@@ -50,7 +50,6 @@ export default function Chat({
         initialMessages: [
             { role: 'assistant', content: 'Hello! How can I help you today?', id: '1' },
         ],
-        initialInput: 'ask me about getEntityType'
     });
 
     const filteredMessages: MappedMessages[] = messages.filter(m => !m.content.startsWith("__Please review my previous messages"));
