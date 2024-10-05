@@ -89,8 +89,8 @@ const InnerWrapper = ({ domande, categorie, outputs }: { domande: DomandaDb[], c
               Ai-ware
             </div>
           </div>
-          <div className={`flex w-64 max-w-64 overflow-hidden ${sideBarOpen ? "opacity-1" : "opacity-0"} transition-opacity`}>
-            <div className='flex-none w-64 max-w-64 overflow-hidden'>
+          <div className={`flex w-60 max-w-60 overflow-hidden ${sideBarOpen ? "opacity-1" : "opacity-0"} transition-opacity`}>
+            <div className='flex-none w-60 max-w-60 overflow-hidden'>
               <div className="flex-none mt-14">
                 <h2 className='text-3xl'>EU AI Act Compliance Checker</h2>
               </div>
