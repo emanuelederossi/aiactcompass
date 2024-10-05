@@ -59,9 +59,9 @@ const InnerWrapper = ({ domande, categorie, outputs }: { domande: DomandaDb[], c
 
   return (
     <div className='flex justify-center w-full'>
-      {showResults ? (
+      {showResults && (
         <div
-        className='w-full bg-slate-400 min-h-screen p-6'
+        className='w-full bg-slate-400/90 min-h-screen p-6 fixed top-0 left-0 z-50'
         >
           <button
             className='bg-blue-500 text-white p-2 rounded-lg mt-5 mb-5'
@@ -77,7 +77,7 @@ const InnerWrapper = ({ domande, categorie, outputs }: { domande: DomandaDb[], c
             
           ))}
         </div>
-      ) : (
+      )}
         <>
           <div className='w-1/3'>
             <h1 className='text-2xl font-bold'>{currentToolIndex}/{domande.length}</h1>
@@ -105,7 +105,7 @@ const InnerWrapper = ({ domande, categorie, outputs }: { domande: DomandaDb[], c
             </button>
           </div>
         </>
-      )}
+
     </div>
   )
 }
