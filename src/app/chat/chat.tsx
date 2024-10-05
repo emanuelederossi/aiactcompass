@@ -18,6 +18,7 @@ interface Action {
 }
 
 interface Category {
+    id: number;
     nome: string;
     options: { value: string; checked: boolean }[];
 }
