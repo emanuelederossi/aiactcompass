@@ -1,6 +1,6 @@
 'use client';
 
-import { Message, useChat } from 'ai/react';
+import { useChat } from 'ai/react';
 import { useEffect, useRef, useState } from 'react';
 import { DomandaDb } from '../domande';
 import { ToolInvocation } from 'ai';

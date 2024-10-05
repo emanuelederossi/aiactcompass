@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Chat from './chat'
 import Output from './output'
 import { DomandaDb } from '../domande'
+import { useSearchParams } from 'next/navigation'
 
 interface Category {
   id: number;
@@ -31,6 +32,9 @@ interface Output {
 }
 
 const InnerWrapper = ({ domande, categorie, outputs }: { domande: DomandaDb[], categorie: CategoryDb[], outputs: Output[] }) => {
+
+  // get search params
+  const params = useSearchParams();
 
   const initialState = categorie.map(c => {
     const options = c.options.map(o => ({ value: o, checked: false }))
@@ -86,9 +90,13 @@ const InnerWrapper = ({ domande, categorie, outputs }: { domande: DomandaDb[], c
               domande={domande} categoriesAndChecks={categoriesAndChecks} />
           </div>
           <div className='w-1/3'>
-            <Output
+          {
+            params.get('debug') && (
+              <Output
               categoriesAndChecks={categoriesAndChecks}
-            />
+              />
+            )
+          }
             <button
               className='bg-blue-500 text-white p-2 rounded-lg mt-5'
               onClick={() => setShowResults(true)}
