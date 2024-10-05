@@ -7,7 +7,9 @@ import { DomandaDb } from '../domande'
 import { useSearchParams } from 'next/navigation'
 import Results from './results'
 import Status from './status'
+import Logo from './logo'
 import ResultIcon from './resultIcon'
+import FaqIcon from './faqIcon'
 interface Category {
   id: number;
   nome: string;
@@ -60,7 +62,7 @@ const InnerWrapper = ({ domande, categorie, outputs }: { domande: DomandaDb[], c
 
   const currentStatusText = `${currentToolIndex}/${domande.length}`
 
-  const [sideBarOpen, setSideBarOpen] = useState<boolean>(false)
+  const [sideBarOpen, setSideBarOpen] = useState<boolean>(true)
 
   const [currentTaskStaus, setCurrentTaskStatus] = useState<{
     currentTask: string;
@@ -74,27 +76,58 @@ const InnerWrapper = ({ domande, categorie, outputs }: { domande: DomandaDb[], c
 
   return (
     <div className='flex justify-center w-full'>
-      <div className={`flex-none ${sideBarOpen ? "w-52" : "w-12"} transition-all`}>
+      <div className={`flex-none ${sideBarOpen ? "w-64" : "w-20"} transition-all overflow-hidden ps-6`}>
         {/* sidebar */}
+        <div>
+          <div className="flex h-[20vh] items-end">
+            <div className="flex items-center flex-none text-2xl">
+              <div className="w-14 flex-none flex justify-center items-center">
+                <Logo
+                  className='trasform scale-150'
+                />
+              </div>
+              Ai-ware
+            </div>
+          </div>
+          <div className={`flex w-64 max-w-64 overflow-hidden ${sideBarOpen ? "opacity-1" : "opacity-0"} transition-opacity`}>
+            <div className='flex-none w-64 max-w-64 overflow-hidden'>
+              <div className="flex-none mt-14">
+                <h2 className='text-3xl'>EU AI Act Compliance Checker</h2>
+              </div>
+              <p className="mt-4 text-sm flex-none">
+                The EU AI Act introduces new obligations to entities located within the EU and elsewhere. Use our interactive tool to determine whether or not your AI system will be subject to these.
+              </p>
+              <p className="mt-4 text-sm flex-none">
+                For further clarity, we recommend that you seek professional legal advice and follow national guidance. More information about EU AI Act enforcement in your country will likely be provided in 2024.
+              </p>
+            </div>
+          </div>
+          <div className="flex mt-6">
+            <div className="w-14 flex-none flex justify-center items-center">
+              <FaqIcon
+              />
+            </div>
+          </div>
+        </div>
       </div>
       <div className='w-full min-h-full flex-1 p-5'>
-        <div className='bg-white rounded-lg min-h-full border border-[#e0e0e0] flex'>
+        <div className='bg-white rounded-lg min-h-full border border-[#e0e0e0] flex relative'>
           <Chat
             setCategoriesAndChecks={setCategoriesAndChecks}
             currentToolIndex={currentToolIndex}
             setCurrentToolIndex={setCurrentToolIndex}
-            domande={domande} categoriesAndChecks={categoriesAndChecks} 
+            domande={domande} categoriesAndChecks={categoriesAndChecks}
             sideBarOpen={sideBarOpen}
-            setSideBarOpen={setSideBarOpen}    
-            setCurrentTaskStatus={setCurrentTaskStatus}        
+            setSideBarOpen={setSideBarOpen}
+            setCurrentTaskStatus={setCurrentTaskStatus}
           />
 
           <div className='flex-none w-64 border-l border-[#e0e0e0] relative'>
-            <Status 
-            domande={domande}
-            currentTaskStatus={currentTaskStaus}
-            currentToolIndex={currentToolIndex}
-            currentStatusText={currentStatusText}
+            <Status
+              domande={domande}
+              currentTaskStatus={currentTaskStaus}
+              currentToolIndex={currentToolIndex}
+              currentStatusText={currentStatusText}
             />
             <div className="absolute bottom-0 w-full border-t bprder-t-[#e0e0e0] p-3 flex gap-3">
               <button
@@ -103,34 +136,27 @@ const InnerWrapper = ({ domande, categorie, outputs }: { domande: DomandaDb[], c
               >
                 <ResultIcon />
                 See Results
-              </button>              
-            </div>
-            <div className='relative'>
-              {
-                params.get('debug') && (
-                  <Output
-                    categoriesAndChecks={categoriesAndChecks}
-                  />
-                )
-              }
-              {/* <button
-                className='bg-blue-500 text-white p-2 rounded-lg'
-                onClick={() => setShowResults(true)}
-              >
-                See Results
-              </button> */}
+              </button>
             </div>
           </div>
+          {showResults && (
+            <Results
+              filtretedOutputs={filtretedOutputs}
+              setShowResults={setShowResults}
+            />
+          )}
         </div>
       </div>
+      {
+        params.get('debug') && (
+          <div className='fixed bottom-0 left-0 p-6 bg-white shadow'>
+            <Output
+              categoriesAndChecks={categoriesAndChecks}
+            />
+          </div>
+        )
+      }
 
-
-      {showResults && (
-        <Results
-          filtretedOutputs={filtretedOutputs}
-          setShowResults={setShowResults}
-        />
-      )}
     </div>
   )
 }
