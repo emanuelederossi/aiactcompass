@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       system: 'Your sole porpuse is to help user understand wich kind of entity is the user organization in, in the context of the AI ACT framework, try to be always concise and clear',
       messages: messages,
       tools,
-      maxSteps: 10
+      maxSteps: 3,
     });
   
     return result.toDataStreamResponse();

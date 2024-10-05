@@ -5,6 +5,7 @@ import Chat from './chat'
 import Output from './output'
 import { DomandaDb } from '../domande'
 import { useSearchParams } from 'next/navigation'
+import Results from './results'
 
 interface Category {
   id: number;
@@ -49,7 +50,7 @@ const InnerWrapper = ({ domande, categorie, outputs }: { domande: DomandaDb[], c
   const filtretedOutputs = outputs.filter(output => output.categories.every(category => {
     const selectedCategory = categoriesAndChecks.find(c => c.id === category.id)
     return category.options.every(option => {
-      if(option.value === false) return true
+      if (option.value === false) return true
       const selectedOption = selectedCategory?.options.find(o => o.value === option.name)
 
       return selectedOption?.checked === option.value
@@ -60,51 +61,38 @@ const InnerWrapper = ({ domande, categorie, outputs }: { domande: DomandaDb[], c
   return (
     <div className='flex justify-center w-full'>
       {showResults && (
-        <div
-        className='w-full bg-slate-400/90 min-h-screen p-6 fixed top-0 left-0 z-50'
-        >
-          <button
-            className='bg-blue-500 text-white p-2 rounded-lg mt-5 mb-5'
-            onClick={() => setShowResults(false)}
-          >back</button>
-          {filtretedOutputs.map(output => (
-            <div key={output.id} className="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-            <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{output.title}</h5>
-            <div 
-                className='tiptap font-normal text-gray-700 dark:text-gray-400'
-                dangerouslySetInnerHTML={{__html: output.content}} />
-            </div>
-            
-          ))}
-        </div>
+        <Results 
+        filtretedOutputs={filtretedOutputs}
+        setShowResults={setShowResults}
+        />
       )}
-        <>
-          <div className='w-1/3'>
-            <h1 className='text-2xl font-bold'>{currentToolIndex}/{domande.length}</h1>
-          </div>
-          <div className='w-full'>
-            <Chat
-              setCategoriesAndChecks={setCategoriesAndChecks}
-              currentToolIndex={currentToolIndex}
-              setCurrentToolIndex={setCurrentToolIndex}
-              domande={domande} categoriesAndChecks={categoriesAndChecks} />
-          </div>
-          <div className='w-1/3'>
+      <>
+        <div className='w-1/3'>
+          <h1 className='text-2xl font-bold'>{currentToolIndex}/{domande.length}</h1>
+        </div>
+        <div className='w-full'>
+          <Chat
+            setCategoriesAndChecks={setCategoriesAndChecks}
+            currentToolIndex={currentToolIndex}
+            setCurrentToolIndex={setCurrentToolIndex}
+            domande={domande} categoriesAndChecks={categoriesAndChecks} />
+        </div>
+        <div className='w-1/3'>
           {
             params.get('debug') && (
               <Output
-              categoriesAndChecks={categoriesAndChecks}
+                categoriesAndChecks={categoriesAndChecks}
               />
             )
           }
-            <button
-              className='bg-blue-500 text-white p-2 rounded-lg mt-5'
-              onClick={() => setShowResults(true)}
-            >
-              See Results
-            </button>
-          </div>
-        </>
+          <button
+            className='bg-blue-500 text-white p-2 rounded-lg mt-5'
+            onClick={() => setShowResults(true)}
+          >
+            See Results
+          </button>
+        </div>
+      </>
 
     </div>
   )
