@@ -213,10 +213,10 @@ export default function Chat({
                             value={input}
                             placeholder="Say something..."
                             onChange={event => setInput(event.target.value)}
-                            onKeyDown={(e) => {
+                            onKeyDown={async(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
                                     e.preventDefault()
-                                    append({ content: input, role: "user" }, { data: { toolIndex: currentToolIndex } })
+                                    await append({ content: input, role: "user" }, { data: { toolIndex: currentToolIndex } })
                                     setInput("")
                                 }
                             }
