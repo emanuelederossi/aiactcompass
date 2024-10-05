@@ -79,7 +79,7 @@ const InnerWrapper = ({ domande, categorie, outputs }: { domande: DomandaDb[], c
       <div className={`flex-none ${sideBarOpen ? "w-64" : "w-20"} transition-all overflow-hidden ps-6`}>
         {/* sidebar */}
         <div>
-          <div className="flex h-[20vh] items-end">
+          <div className="flex h-[18vh] items-end">
             <div className="flex items-center flex-none text-2xl">
               <div className="w-14 flex-none flex justify-center items-center">
                 <Logo
@@ -89,9 +89,9 @@ const InnerWrapper = ({ domande, categorie, outputs }: { domande: DomandaDb[], c
               Ai-ware
             </div>
           </div>
-          <div className={`flex w-60 max-w-60 overflow-hidden ${sideBarOpen ? "opacity-1" : "opacity-0"} transition-opacity`}>
-            <div className='flex-none w-60 max-w-60 overflow-hidden'>
-              <div className="flex-none mt-14">
+          <div className={`flex w-56 max-w-56 overflow-hidden ${sideBarOpen ? "opacity-1" : "opacity-0"} transition-opacity`}>
+            <div className='flex-none w-56 max-w-56 overflow-hidden'>
+              <div className="flex-none mt-12">
                 <h2 className='text-3xl'>EU AI Act Compliance Checker</h2>
               </div>
               <p className="mt-4 text-sm flex-none">
