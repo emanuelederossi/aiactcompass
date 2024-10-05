@@ -39,7 +39,7 @@ const ChatComponent = ({
                         m.content !== "" && (
                             m.role === 'user' ? (
                                 <div key={m.id} className="flex justify-end mb-12">
-                                <div  className={`p-3 rounded-xl bg-[#F3F3F3BA] text-right whitespace-pre-wrap mb-4 leading-relaxed ${m.system && "text-red-600 font-semibold"}`}>
+                                <div  className={`p-3 rounded-xl bg-[#F3F3F3BA] max-w-[600px] whitespace-pre-wrap mb-4 leading-relaxed ${m.system && "text-red-600 font-semibold"}`}>
                                     {m.content === "" ? "...tool invocation..." : m.content}
                                 </div>
                                 </div>
