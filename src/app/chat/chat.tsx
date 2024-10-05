@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { DomandaDb } from '../domande';
 import { ToolInvocation } from 'ai';
 import { useSearchParams } from 'next/navigation';
+import ChatComponent from './chatComponent';
 
 interface MappedMessages {
     content: string;
@@ -74,37 +75,37 @@ export default function Chat({
     }
 
     // UPDATE CATEGORIES AND CHECKS
-    const updateCategoriesAndChecks = (act: { category: string, value: string }[]) => {        
+    const updateCategoriesAndChecks = (act: { category: string, value: string }[]) => {
         const prev = categoriesAndChecks;
         const clone = JSON.parse(JSON.stringify(prev)) as Category[]
-            act.forEach(a => {
-                const category = clone.find((c: Category) => c.nome === a.category)
+        act.forEach(a => {
+            const category = clone.find((c: Category) => c.nome === a.category)
 
-                if (category && a.value) {
-                    // PUSH
-                    if (a.value.startsWith('PUSH(')) {
+            if (category && a.value) {
+                // PUSH
+                if (a.value.startsWith('PUSH(')) {
 
-                        const option = category.options.find(o => a.value === `PUSH("${o.value}")`)
+                    const option = category.options.find(o => a.value === `PUSH("${o.value}")`)
 
-                        if (option) {
-                            option.checked = true
-                        }
-                    }
-                    // CHANGE
-                    else if (a.value.startsWith('CHANGE(')) {
-                        const toRemove = a.value.split('"')[1]
-                        const toAdd = a.value.split('"')[3]
-                        const optionToRemove = category.options.find(o => a.value === toRemove)
-                        const optionToAdd = category.options.find(o => a.value === toAdd)
-                        if (optionToRemove) {
-                            optionToRemove.checked = false
-                        }
-                        if (optionToAdd) {
-                            optionToAdd.checked = true
-                        }
+                    if (option) {
+                        option.checked = true
                     }
                 }
-            })
+                // CHANGE
+                else if (a.value.startsWith('CHANGE(')) {
+                    const toRemove = a.value.split('"')[1]
+                    const toAdd = a.value.split('"')[3]
+                    const optionToRemove = category.options.find(o => a.value === toRemove)
+                    const optionToAdd = category.options.find(o => a.value === toAdd)
+                    if (optionToRemove) {
+                        optionToRemove.checked = false
+                    }
+                    if (optionToAdd) {
+                        optionToAdd.checked = true
+                    }
+                }
+            }
+        })
         setCategoriesAndChecks(clone)
         return clone
     }
@@ -170,7 +171,7 @@ export default function Chat({
                         setCurrentToolIndex(nextTool.index);
                         sendItData(nextTool.toolName, nextTool.index).catch(error => console.error(error));
                     }
-                }else if (nextTool) {
+                } else if (nextTool) {
                     setCurrentToolIndex(nextTool.index);
                     sendItData(nextTool.toolName, nextTool.index).catch(error => console.error(error));
                 }
@@ -186,46 +187,51 @@ export default function Chat({
     }, [messages]);
 
     return (
-        <div ref={scrollContRef} className="flex flex-col w-full py-24 h-[90vh] mx-auto stretch overflow-y-scroll">
-            {
-                params.get('debug') ?
-                    mappedMessages.map(m => (
-                        m.content !== "" &&
-                        <div key={m.id} className={`whitespace-pre-wrap mb-4 leading-relaxed ${m.system && "text-red-600 font-semibold"}`}>
-                            <span className={`bg-blue-200 p-2 rounded me-2`}>
-                                {m.role === 'user' ? 'User: ' : 'AI: '}
-                            </span>
-                            {m.content === "" ? "...tool invocation..." : m.content}
-                        </div>
-                    ))
-                    :
-                    filteredMessages.map(m => (
-                        m.content !== "" &&
-                        <div key={m.id} className={`whitespace-pre-wrap mb-4 leading-relaxed ${m.system && "text-red-600 font-semibold"}`}>
-                            <span className={`bg-blue-200 p-2 rounded me-2`}>
-                                {m.role === 'user' ? 'User: ' : 'AI: '}
-                            </span>
-                            {m.content === "" ? "...tool invocation..." : m.content}
-                        </div>
-                    ))
-            }
-
-            <form onSubmit={async (e) => {
-                e.preventDefault()
-                setInput("")
-                await append({ content: input, role: "user" }, { data: { toolIndex: currentToolIndex } })
-            }}>
-                <div
-                    className='fixed bottom-0 w-full max-w-[900px] left-[50%] translate-x-[-50%] p-2 mb-8'
-                >
-                    <input
-                        className="w-full p-2 border border-gray-300 rounded shadow-xl"
-                        value={input}
-                        placeholder="Say something..."
-                        onChange={event => setInput(event.target.value)}
-                    />
+        <div  className=" relative flex flex-col w-full pb-28 min-h-full ">
+            <div className="border-b p-3 border-[#e0e0e0]">
+                AI Legal Checker
+            </div>
+            <div ref={scrollContRef} className='p-5 h-[67vh] overflow-y-scroll hidden-scrollbar'>
+                <div className="w-full flex justify-center">
+                    <div className="w-full max-w-[800px]">
+                        <ChatComponent
+                        mappedMessages={mappedMessages}
+                        filteredMessages={filteredMessages}
+                        />
+                    </div>
                 </div>
-            </form>
+                <form onSubmit={async (e) => {
+                    e.preventDefault()
+                    setInput("")
+                    await append({ content: input, role: "user" }, { data: { toolIndex: currentToolIndex } })
+                }}>
+                    <div
+                        className='absolute bottom-0 w-full left-0 px-5 pb-10 flex justify-center'
+                    >
+                        <textarea
+                            className="w-full max-w-[800px] p-2 border border-[#e0e0e0] rounded shadow-lg overflow-hidden outline-none resize-none"
+                            value={input}
+                            placeholder="Say something..."
+                            onChange={event => setInput(event.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault()
+                                    append({ content: input, role: "user" }, { data: { toolIndex: currentToolIndex } })
+                                    setInput("")
+                                }
+                            }
+                            }
+                            style={{ height: 'auto', minHeight: '20px' }}
+                            rows={1}
+                            onInput={(e) => {
+                                const target = e.target as HTMLTextAreaElement;
+                                target.style.height = 'auto';
+                                target.style.height = `${target.scrollHeight}px`;
+                            }}
+                        />
+                    </div>
+                </form>
+            </div>
         </div>
     );
 }

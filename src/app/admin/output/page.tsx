@@ -90,7 +90,10 @@ const Outputs = async() => {
                 className='tiptap'
                 dangerouslySetInnerHTML={{__html: output.content}} />
                 <div                 
-                className="w-full flex justify-end">
+                className="w-full flex gap-2 justify-end">
+                    <Link href={`/admin/output/${output.id}`} className='p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600/50'>
+                        Edit
+                    </Link>
                     <DeleteBtn 
                     id={output.id}
                     />

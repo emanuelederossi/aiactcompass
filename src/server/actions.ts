@@ -132,6 +132,19 @@ export async function postOutput(out: Output) {
     }
 }
 
+export async function putOutput(id: number, out: Output) {
+    try {
+        const o = await db.query.output.findMany({
+            where: eq(output.id, id)
+        });
+        if(o.length === 0) return {success: false, error: 'output not found'};
+        await db.update(output).set(out).where(eq(output.id, id));
+        return {success: true};
+    } catch (error) {
+        return {success: false, error};
+    }
+}
+
 export async function getOutputs() {
     const out = await db.query.output.findMany();
     return out;

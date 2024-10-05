@@ -54,7 +54,7 @@ const page = async() => {
   }));
 
   return (
-    <div className='flex justify-center'>  
+    <div className='flex justify-center bg-[#F1F1F1] min-h-screen'>  
     {formattedDomande && formattedCategorie && (
       <InnerWrapper 
       domande={formattedDomande} 

@@ -57,43 +57,50 @@ const InnerWrapper = ({ domande, categorie, outputs }: { domande: DomandaDb[], c
     })
   }))
 
+  const currentStatusText = `Current status: ${currentToolIndex}/${domande.length}`
+
 
   return (
     <div className='flex justify-center w-full'>
-      {showResults && (
-        <Results 
-        filtretedOutputs={filtretedOutputs}
-        setShowResults={setShowResults}
-        />
-      )}
-      <>
-        <div className='w-1/3'>
-          <h1 className='text-2xl font-bold'>{currentToolIndex}/{domande.length}</h1>
-        </div>
-        <div className='w-full'>
+      <div className="flex-none w-52">
+        {/* sidebar */}
+      </div>
+      <div className='w-full min-h-full flex-1 p-5'>
+        <div className='bg-white rounded-lg min-h-full border border-[#e0e0e0] flex'>
           <Chat
             setCategoriesAndChecks={setCategoriesAndChecks}
             currentToolIndex={currentToolIndex}
             setCurrentToolIndex={setCurrentToolIndex}
             domande={domande} categoriesAndChecks={categoriesAndChecks} />
-        </div>
-        <div className='w-1/3'>
-          {
-            params.get('debug') && (
-              <Output
-                categoriesAndChecks={categoriesAndChecks}
-              />
-            )
-          }
-          <button
-            className='bg-blue-500 text-white p-2 rounded-lg mt-5'
-            onClick={() => setShowResults(true)}
-          >
-            See Results
-          </button>
-        </div>
-      </>
 
+          <div className='flex-none w-52'>
+            <div className="border-b p-3 border-[#e0e0e0]">
+                Status
+            </div>
+            {
+              params.get('debug') && (
+                <Output
+                  categoriesAndChecks={categoriesAndChecks}
+                />
+              )
+            }
+            <button
+              className='bg-blue-500 text-white p-2 rounded-lg mt-5'
+              onClick={() => setShowResults(true)}
+            >
+              See Results
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+      {showResults && (
+        <Results
+          filtretedOutputs={filtretedOutputs}
+          setShowResults={setShowResults}
+        />
+      )}
     </div>
   )
 }
