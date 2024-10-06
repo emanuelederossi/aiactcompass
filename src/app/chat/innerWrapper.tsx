@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Chat from './chat'
 import Output from './output'
 import { DomandaDb } from '../domande'
@@ -49,15 +49,38 @@ const InnerWrapper = ({ domande, categorie, outputs }: { domande: DomandaDb[], c
   const [categoriesAndChecks, setCategoriesAndChecks] = useState<Category[]>(initialState)
   const [currentToolIndex, setCurrentToolIndex] = useState<number>(1);
 
-  const filtretedOutputs = outputs.filter(output => output.categories.every(category => {
-    const selectedCategory = categoriesAndChecks.find(c => c.id === category.id)
-    return category.options.every(option => {
-      if (option.value === false) return true
-      const selectedOption = selectedCategory?.options.find(o => o.value === option.name)
+ 
 
-      return selectedOption?.checked === option.value
-    })
-  }))
+  
+  const filteredOutputsIfExit = categoriesAndChecks.filter(output => output.options.find(category => category.value === "EXIT")?.checked === true)
+  const filteredOutputsIfProihbited = categoriesAndChecks.filter(output => output.options.find(category => category.value === "prohibited")?.checked === true)
+
+
+
+  const [realOutputs, setRealOutputs] = useState<Output[]>([])
+
+  useEffect(() => {
+
+    const filtretedOutputs = outputs.filter(output => output.categories.every(category => {
+      const selectedCategory = categoriesAndChecks.find(c => c.id === category.id)
+      return category.options.every(option => {
+        if (option.value === false) return true
+        const selectedOption = selectedCategory?.options.find(o => o.value === option.name)
+        return selectedOption?.checked === option.value
+      })
+    }))
+
+    if (filteredOutputsIfExit.length > 0) {
+      setShowResults(true)
+      setRealOutputs(filtretedOutputs.filter(output => output.categories.find(category => category.id === 3)?.options.find(option => option.name === "EXIT")?.value === true))
+    } else if (filteredOutputsIfProihbited.length > 0) {
+      setShowResults(true)
+      setRealOutputs(filtretedOutputs.filter(output => output.categories.find(category => category.id === 5)?.options.find(option => option.name === "prohibited")?.value === true))
+    } else {
+      setRealOutputs(filtretedOutputs)
+    }
+  }, [categoriesAndChecks])
+  
 
   const currentStatusText = `${currentToolIndex}/${domande.length}`
 
@@ -81,7 +104,7 @@ const InnerWrapper = ({ domande, categorie, outputs }: { domande: DomandaDb[], c
         />
       </div>
       <div className='w-full min-h-full flex-1 p-5'>
-        <div className='bg-white rounded-lg min-h-full border border-[#e0e0e0] flex relative'>
+        <div className='bg-white rounded-lg min-h-full border border-[#e0e0e0] flex relative overflow-hidden'>
           <Chat
             setCategoriesAndChecks={setCategoriesAndChecks}
             currentToolIndex={currentToolIndex}
@@ -108,13 +131,12 @@ const InnerWrapper = ({ domande, categorie, outputs }: { domande: DomandaDb[], c
                 See Results
               </button>
             </div>
-          </div>
-          {showResults && (
+          </div>          
             <Results
-              filtretedOutputs={filtretedOutputs}
+              filtretedOutputs={realOutputs}
               setShowResults={setShowResults}
-            />
-          )}
+              showResults={showResults}
+              />
         </div>
       </div>
       {

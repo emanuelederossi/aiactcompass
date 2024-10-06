@@ -33,7 +33,7 @@ const Status = ({
         setTimeout(() => {
             scrollIntoView(currentToolIndex);
         }, 0);
-    }, [currentToolIndex, currentTaskStatus]);
+    }, [currentToolIndex, currentTaskStatus, currentStatusText, domande]);
 
     return (
         <div className='relative'>
