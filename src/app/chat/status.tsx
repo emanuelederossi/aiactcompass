@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { DomandaDb } from '../domande';
 
 const Status = ({
@@ -20,18 +20,20 @@ const Status = ({
 }) => {
 
 
+    const tasksRef = useRef<(HTMLDivElement | null)[]>([]);
 
     const scrollIntoView = (index: number) => {
-        const element = document.querySelector(`#domanda-${index - 2}`)
-        if (!element) return
-        console.log("DC", element)
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
+        const element = tasksRef.current[index - 2];
+        if (!element) return;
+        console.log("DC", element);
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
 
     useEffect(() => {
-        scrollIntoView(currentToolIndex)
-    }, [currentToolIndex])
-
+        setTimeout(() => {
+            scrollIntoView(currentToolIndex);
+        }, 0);
+    }, [currentToolIndex, currentTaskStatus]);
 
     return (
         <div className='relative'>
@@ -41,10 +43,11 @@ const Status = ({
                     className='bg-gray-300 px-2 py-1 text-sm text-gray-700 font-bold rounded-full h-min'
                 >{currentStatusText}</p>
             </div>
-            <div className="p-3 flex flex-col overflow-y-scroll max-h-[67vh] hidden-scrollbar relative pb-48">
+            <div className="px-3 flex flex-col overflow-y-scroll max-h-[67vh] hidden-scrollbar relative pb-48">
                 {
                     domande.map((d, i) => (
-                        <div key={d.id} id={`domanda-${d.index}`} className='pt-2'>
+
+                        <div ref={el => { tasksRef.current[i] = el; }} key={d.id} id={`domanda-${d.index}`} className='pt-2'>
                             <div className="flex items-center gap-2 p-2 text-blue-900 rounded-md bg-blue-900/10">
                                 {
                                     currentTaskStatus.taskIndex === d.index ? (
