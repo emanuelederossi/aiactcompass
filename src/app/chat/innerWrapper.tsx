@@ -7,9 +7,8 @@ import { DomandaDb } from '../domande'
 import { useSearchParams } from 'next/navigation'
 import Results from './results'
 import Status from './status'
-import Logo from './logo'
 import ResultIcon from './resultIcon'
-import FaqIcon from './faqIcon'
+import Sidebar from './sidebar'
 interface Category {
   id: number;
   nome: string;
@@ -77,38 +76,9 @@ const InnerWrapper = ({ domande, categorie, outputs }: { domande: DomandaDb[], c
   return (
     <div className='flex justify-center w-full'>
       <div className={`flex-none ${sideBarOpen ? "w-64" : "w-20"} transition-all overflow-hidden ps-6`}>
-        {/* sidebar */}
-        <div>
-          <div className="flex h-[18vh] items-end">
-            <div className="flex items-center flex-none text-2xl">
-              <div className="w-14 flex-none flex justify-center items-center">
-                <Logo
-                  className='trasform scale-150'
-                />
-              </div>
-              Ai-ware
-            </div>
-          </div>
-          <div className={`flex w-56 max-w-56 overflow-hidden ${sideBarOpen ? "opacity-1" : "opacity-0"} transition-opacity`}>
-            <div className='flex-none w-56 max-w-56 overflow-hidden'>
-              <div className="flex-none mt-12">
-                <h2 className='text-3xl'>EU AI Act Compliance Checker</h2>
-              </div>
-              <p className="mt-4 text-sm flex-none">
-                The EU AI Act introduces new obligations to entities located within the EU and elsewhere. Use our interactive tool to determine whether or not your AI system will be subject to these.
-              </p>
-              <p className="mt-4 text-sm flex-none">
-                For further clarity, we recommend that you seek professional legal advice and follow national guidance. More information about EU AI Act enforcement in your country will likely be provided in 2024.
-              </p>
-            </div>
-          </div>
-          <div className="flex mt-6">
-            <div className="w-14 flex-none flex justify-center items-center">
-              <FaqIcon
-              />
-            </div>
-          </div>
-        </div>
+        <Sidebar 
+        sideBarOpen={sideBarOpen}
+        />
       </div>
       <div className='w-full min-h-full flex-1 p-5'>
         <div className='bg-white rounded-lg min-h-full border border-[#e0e0e0] flex relative'>

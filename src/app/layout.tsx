@@ -19,7 +19,7 @@ export default function RootLayout({
       
         <html lang="en" className={`${GeistSans.variable}`}>
           <body>
-            <header className="fixed top-5 left-5">
+            <header className="fixed top-24 left-9">
               <SignedOut>
                 <SignInButton />
               </SignedOut>
