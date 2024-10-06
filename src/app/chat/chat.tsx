@@ -158,7 +158,7 @@ export default function Chat({
     }
 
     const [currentInvocationsNumber, setCurrentInvocationsNumber] = useState<number>(0);
-    const [noInvocationsCount, setNoInvocationsCount] = useState<number>(-2)
+    const [noInvocationsCount, setNoInvocationsCount] = useState<number>(-1)
 
     // VAI ALLA PROSSIMA DOMANDA
     useEffect(() => {
