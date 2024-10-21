@@ -1,5 +1,6 @@
 import React from 'react'
 import dati from '~/utils/populated_list'
+import profList from '~/utils/prof_list'
 import axios from 'axios';
 import Client from './client';
 
@@ -40,16 +41,16 @@ const Search = async () => {
     // const n = 223
     // const to = n + 50
 
-    // // for (let i = n; i < to; i++) {
-    // //     const start = i * 10;
-    // //     const end = start + 10;
-    //     const currentBatch = urls.slice(n, to);
+    // for (let i = 0; i < iterations; i++) {
+    //     const start = i * 10;
+    //     const end = start + 10;
+    //     const currentBatch = urls.slice(start, end);
 
     //     const batchData = await fetchHtmlResponses(currentBatch)
-    //     console.log("completed batch", n);
+    //     console.log("completed batch", i);
     //     setTimeout(() => { }, 1000);
     //     complete_dati.push(...batchData);
-    // // }
+    // }
 
 
     // if (!complete_dati) {
