@@ -87,7 +87,7 @@ Follow these steps to set up the project locally:
 
 6. **Access the Application**
 
-   Open your browser and navigate to [http://localhost:3000](http://localhost:3000) to start using the app.
+   Open your browser and navigate to [http://localhost:3000/chat](http://localhost:3000/chat) to start using the app.
 
 ## Usage
 
